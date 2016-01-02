@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <display-name>@application.name@, v@application.version@</display-name>
+
+
+    <!-- Default page ====================================================== -->
+    <welcome-file-list>
+        <welcome-file>@welcome-file@</welcome-file>
+    </welcome-file-list>
+
+  
+    <!-- Servlets: Greeting Service ======================================== -->
+
+    <servlet>
+        <servlet-name>greetServlet</servlet-name>
+        <servlet-class>demo.server.GreetingServiceImpl</servlet-class>
+    </servlet>
+  
+    <servlet-mapping>
+        <servlet-name>greetServlet</servlet-name>
+        <url-pattern>/@gwtModule@/greet</url-pattern>
+    </servlet-mapping>
+
+</web-app>
