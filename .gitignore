@@ -1,0 +1,8 @@
+# Gradle
+**/.gradle
+**/.classpath
+
+# GWT build directories 
+**/build-gwt/ 
+**/build/ 
+**/gwt-unitCache/
