@@ -45,11 +45,13 @@ public class GwtRandomTest  {
     }
 
     @Test
+    @SuppressWarnings("unused")
     public void randomInt() {
         int random = Random.nextInt();
     }
 
     @Test
+    @SuppressWarnings("unused")
     public void randomDouble() {
         double random = Random.nextDouble();
     }
