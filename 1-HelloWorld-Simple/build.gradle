@@ -99,6 +99,7 @@ dependencies {
     // Dependency Versions 
     def gwtSDK   = '2.7.0'
     def junit   = '4.12'
+    def gwtMockito  = '1.1.6'
     def powerMock  = '1.6.4'
 
     compile ([
@@ -111,6 +112,7 @@ dependencies {
     runtime ([ ])        // TDB
 
     testCompile([ 
+        "com.google.gwt.gwtmockito:gwtmockito:$gwtMockito",
         "org.powermock:powermock-api-mockito:$powerMock",   // PowerMock using Mockito
         "org.powermock:powermock-module-junit4:$powerMock", // PowerMock using JUnit
         "junit:junit:$junit"
