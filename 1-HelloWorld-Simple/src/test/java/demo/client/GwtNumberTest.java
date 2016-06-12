@@ -23,15 +23,12 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.assertEquals;
 
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest( { NumberFormat.class })
 public class GwtNumberTest  {
-
-    static final String FORMAT = "0.0";
-    static final DecimalFormat jdkFormatter = new DecimalFormat(FORMAT);
-
 
     @GwtMock
     NumberFormat numberformatMock;
@@ -43,6 +40,13 @@ public class GwtNumberTest  {
         mockStatic(NumberFormat.class);
 
         when(NumberFormat.getFormat(anyString())).thenReturn(numberformatMock);
+    }
+
+    @Test
+    public void numberformat() {
+
+        String pattern = "0.0";
+        DecimalFormat jdkFormatter = new DecimalFormat(pattern);
 
         // Use JDK for number fomatting
         when(numberformatMock.format(anyDouble())).thenAnswer(
@@ -53,15 +57,21 @@ public class GwtNumberTest  {
                 }
             });
 
-    }
+        // Tests -----------------------------------------------------
 
-    @Test
-    public void numberformat() {
-        NumberFormat numberformat = NumberFormat.getFormat(FORMAT);
-        System.out.println(numberformat.format(0));
-        System.out.println(numberformat.format(0.0));
-        System.out.println(numberformat.format(1.0));
-        System.out.println(numberformat.format(100.0));
+        NumberFormat numberformat = NumberFormat.getFormat(pattern);
+        assertEquals("0.0", numberformat.format(0.0));
+        assertEquals("1.0", numberformat.format(1.0));
+        assertEquals("100.0", numberformat.format(100.0));
+
+        assertEquals("0.0", numberformat.format(0.));
+        assertEquals("1.0", numberformat.format(1.));
+        assertEquals("100.0", numberformat.format(100.));
+
+        assertEquals("0.0", numberformat.format(0));
+        assertEquals("1.0", numberformat.format(1));
+        assertEquals("100.0", numberformat.format(100));
+       
     }
 
 }
