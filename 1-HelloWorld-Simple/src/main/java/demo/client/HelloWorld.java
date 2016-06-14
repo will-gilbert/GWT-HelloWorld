@@ -17,11 +17,12 @@ import com.google.gwt.user.client.ui.Label;
  */
 
 public class HelloWorld implements EntryPoint {
+	
+	VerticalPanel container = new VerticalPanel();
 
 	// Application starting point	
 	public void onModuleLoad() {
 
-		VerticalPanel container = new VerticalPanel();
 		
 		// Create a button
 		Button button = new Button("Hello?");
@@ -37,29 +38,33 @@ public class HelloWorld implements EntryPoint {
 				);
 			}
 		});
-				
-		for(int i=30; i<100; i+=2) {
-			Label label = new Label("XXXXX");
-
-			String color = new StringBuffer()
-				.append("hsl(").append(298).append(",")
-				.append(i).append("%,")
-				.append("60%").append(")")
-				.toString();
-
-
-			label.getElement().getStyle().setColor(color);
-			label.getElement().getStyle().setBackgroundColor(color);
-			container.add(label);
-		}
-
-
+		
+		// Re: http://hslpicker.com for values
+		createHSLColorSet(298, 20, 90, 2, 40);
 
 		// Display the button
 		RootPanel.get().add(container);
 	}
 
+
+	private void createHSLColorSet(int hue, int from, int to, int interval, int lightness) {
+
+		for(int i=from; i<to; i+=interval) {
+			Label label = new Label("XXXXX");
+
+			String color = new StringBuffer()
+				.append("hsl(").append(hue).append(",")
+				.append(i).append("%,")
+				.append(lightness).append("%)")
+				.toString();
+
+			label.getElement().getStyle().setColor(color);
+			label.getElement().getStyle().setBackgroundColor(color);
+
+			container.add(label);
+		}
+
+
+	}
+
 }
-
-
-//  component.getElement().getStyle().setColor("hsl(0,100%, 25%)")
