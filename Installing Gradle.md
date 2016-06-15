@@ -51,7 +51,7 @@ if [ -n  "$interactive" ]; then
     alias tasks='gradle --console=plain tasks'
     alias clean='gradle --quiet --console=plain clean'
     alias usage='gradle --quiet --console=plain usage'
-    alias report='open target/reports/tests/index.html 2>/dev/null;'
+    alias report='open build/reports/tests/index.html 2>/dev/null;'
           
     function test { gradle --console=plain test -Dtest.single=${1}; }
     function tests { gradle --console=plain test; }

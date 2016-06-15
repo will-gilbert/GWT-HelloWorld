@@ -2,10 +2,14 @@ task usage << { print """
 ==================================================================================
 ${applicationName}, v${project.version}
 
-
 gradle compileJava
   Compile Java source code displaying warnings and error to the terminal console. Does not
   cross compile Java to JavaScript
+
+
+gradle devMode
+  Start DevMode (formerly SuperDevMode); Use the DevMode window to start a browser session;
+  Edit and save GWT source code, refresh the browser to recompile.
 
 
 gradle clean jettyRun
@@ -97,9 +101,9 @@ configurations { [gwtCompile] }
 dependencies {
 
     // Dependency Versions 
-    def gwtSDK   = '2.7.0'
-    def junit   = '4.12'
-    def gwtMockito  = '1.1.6'
+    def gwtSDK     = '2.7.0'
+    def junit      = '4.12'
+    def gwtMockito = '1.1.6'
     def powerMock  = '1.6.4'
 
     compile ([

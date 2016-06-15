@@ -60,17 +60,31 @@ public class GwtNumberTest  {
         // Tests -----------------------------------------------------
 
         NumberFormat numberformat = NumberFormat.getFormat(pattern);
+
+        // Doubles
         assertEquals("0.0", numberformat.format(0.0));
         assertEquals("1.0", numberformat.format(1.0));
         assertEquals("100.0", numberformat.format(100.0));
 
+        // Doubles with extra precision
+        assertEquals("0.0", numberformat.format(0.00001));
+        assertEquals("1.0", numberformat.format(1.00001));
+        assertEquals("100.0", numberformat.format(100.00001));
+
+        // Doubles with less precision
         assertEquals("0.0", numberformat.format(0.));
         assertEquals("1.0", numberformat.format(1.));
         assertEquals("100.0", numberformat.format(100.));
 
+        // Integers
         assertEquals("0.0", numberformat.format(0));
         assertEquals("1.0", numberformat.format(1));
         assertEquals("100.0", numberformat.format(100));
+
+        // Floats
+        assertEquals("0.0", numberformat.format(0.0f));
+        assertEquals("1.0", numberformat.format(1.0f));
+        assertEquals("100.0", numberformat.format(100.0f));
        
     }
 
