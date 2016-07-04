@@ -12,7 +12,13 @@ gradle devMode
   Edit and save GWT source code, refresh the browser to recompile.
 
 
-gradle clean jettyRun
+gradle clean jettyRun -P entryPoint=AsyncDataProviderExample
+gradle clean jettyRun -P entryPoint=CellTableExample
+gradle clean jettyRun -P entryPoint=CellTableFieldUpdaterExample
+gradle clean jettyRun -P entryPoint=CellTableFieldUpdaterExampleComplex
+gradle clean jettyRun -P entryPoint=KeyProviderExample
+gradle clean jettyRun -P entryPoint=ListDataProviderExample
+gradle clean jettyRun -P entryPoint=RangeChangeHandlerExample
   Cross compiles the client side Java into JavaScript; launches Jetty.  Use any browser to
   connect to the localhost on the port defined by 'jettyRun.httpPort'
 
@@ -48,10 +54,10 @@ version = '1.0'
 
 // GWT Compiler Configuration ---------------------------------------------------
 
-ext.gwtModuleXML = 'demo.KeyProviderExample'   // Path to module descriptor
-ext.gwtModule = 'KeyProviderExample'           // 'rename-to' within module descriptor
-ext.gwtStartPage = 'index.html'              // HTML startup page
-ext.gwtBuildDir = 'build-gwt'                // GWT build directory
+ext.gwtModule = findProperty('entryPoint', 'CellTableExample')  // Module EntryPoint
+ext.gwtModuleXML = 'demo.CellTableExamples'      // Path to module descriptor
+ext.gwtStartPage = 'index.html'                  // HTML startup page
+ext.gwtBuildDir = 'build-gwt'                    // GWT build directory
 
 
 // Properties -------------------------------------------------------------------
@@ -67,7 +73,7 @@ ext.localityProperties = [
 
 // Java Compiler Configuration -------------------------------------------------
 
-sourceCompatibility = 1.8
+sourceCompatibility = 1.7
 targetCompatibility = sourceCompatibility
 compileJava.options.compilerArgs = [
 //    '-Xlint:unchecked', 
