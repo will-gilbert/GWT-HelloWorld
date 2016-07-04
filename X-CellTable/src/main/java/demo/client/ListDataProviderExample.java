@@ -13,11 +13,14 @@ import com.google.gwt.event.dom.client.ClickEvent;
 
 import java.util.List;
 
+/**
+* Pushing data with List Data Provider (backed by List)
+*/
 
-// Pushing data with List Data Provider (backed by List)
 public class ListDataProviderExample implements EntryPoint {
 
   public void onModuleLoad() {
+
     // Create a CellList.
     CellList<String> cellList = new CellList<String>(new TextCell());
 
@@ -30,7 +33,9 @@ public class ListDataProviderExample implements EntryPoint {
     // Create a form to add values to the data provider.
     final TextBox valueBox = new TextBox();
     valueBox.setText("Enter new value");
+
     Button addButton = new Button("Add value", new ClickHandler() {
+        
       public void onClick(ClickEvent event) {
         // Get the value from the text box.
         String newValue = valueBox.getText();

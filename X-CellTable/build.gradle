@@ -311,7 +311,7 @@ jettyRun.doFirst {
     print   '| Open a browser and enter the URL-> '
     println "  http://localhost:${jettyRun.httpPort}/${project.name}/${gwtStartPage}"
     println '|'
-    println '| Mac OSX: Command-"Double Click" on the url'
+    println '| MacOS: Command-"Double Click" on the url'
     println '| Ctrl-C or Command-Period to quit'
     println '|'
 }

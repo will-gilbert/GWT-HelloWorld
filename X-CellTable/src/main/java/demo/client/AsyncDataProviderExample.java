@@ -22,11 +22,13 @@ public class AsyncDataProviderExample implements EntryPoint {
    * A custom {@link AsyncDataProvider}.
    */
   private static class MyDataProvider extends AsyncDataProvider<String> {
+
     /**
      * {@link #onRangeChanged(HasData)} is called when the table requests a new
      * range of data. You can push data back to the displays using
      * {@link #updateRowData(int, List)}.
      */
+
     @Override
     protected void onRangeChanged(HasData<String> display) {
       // Get the new range.
@@ -36,7 +38,9 @@ public class AsyncDataProviderExample implements EntryPoint {
        * Query the data asynchronously. If you are using a database, you can
        * make an RPC call here. We'll use a Timer to simulate a delay.
        */
+
       new Timer() {
+        
         @Override
         public void run() {
           // We are creating fake data. Normally, the data will come from a
@@ -57,6 +61,7 @@ public class AsyncDataProviderExample implements EntryPoint {
   }
 
   public void onModuleLoad() {
+
     // Create a CellList.
     CellList<String> cellList = new CellList<String>(new TextCell());
 
