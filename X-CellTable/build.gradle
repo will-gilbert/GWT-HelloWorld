@@ -7,7 +7,14 @@ gradle compileJava
   cross compile Java to JavaScript
 
 
-gradle devMode
+gradle clean devMode -P entryPoint=AsyncDataProviderExample
+gradle clean devMode -P entryPoint=CellTableExample
+gradle clean devMode -P entryPoint=CellTableFieldUpdaterExample
+gradle clean devMode -P entryPoint=CellTableFieldUpdaterExampleComplex
+gradle clean devMode -P entryPoint=CellTableSortExample
+gradle clean devMode -P entryPoint=KeyProviderExample
+gradle clean devMode -P entryPoint=ListDataProviderExample
+gradle clean devMode -P entryPoint=RangeChangeHandlerExample
   Start DevMode (formerly SuperDevMode); Use the DevMode window to start a browser session;
   Edit and save GWT source code, refresh the browser to recompile.
 
@@ -16,6 +23,7 @@ gradle clean jettyRun -P entryPoint=AsyncDataProviderExample
 gradle clean jettyRun -P entryPoint=CellTableExample
 gradle clean jettyRun -P entryPoint=CellTableFieldUpdaterExample
 gradle clean jettyRun -P entryPoint=CellTableFieldUpdaterExampleComplex
+gradle clean jettyRun -P entryPoint=CellTableSortExample
 gradle clean jettyRun -P entryPoint=KeyProviderExample
 gradle clean jettyRun -P entryPoint=ListDataProviderExample
 gradle clean jettyRun -P entryPoint=RangeChangeHandlerExample
