@@ -1,9 +1,17 @@
 package demo.client;
 
-// GWT Client
+// GWT Data Support
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.cell.client.DateCell;
 import com.google.gwt.view.client.ListDataProvider;
+
+// GWT DOM Events
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.dom.client.Style.Unit;
+
+// GWT Widgets
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -14,6 +22,8 @@ import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSe
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.ColumnSortList;
+import com.google.gwt.user.cellview.client.ColumnSortList.ColumnSortInfo;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
 
 // Java Collections
 import java.util.Arrays;
@@ -28,19 +38,24 @@ import java.util.Comparator;
 
 public class CellTableSortExample implements EntryPoint {
 
+    final VerticalPanel content = new VerticalPanel();
+
     CellTable<Contact> table;
     TextColumn<Contact> nameColumn;
     DateCell dateCell;
     TextColumn<Contact> addressColumn;
     ListDataProvider<Contact> dataProvider;
 
+    // Number of time the 'Load a new List' has been clicked
+    int clicks = 0;
+
     /**
      * A simple data type that represents a contact.
      */
     private static class Contact {
-        public final String address;
-        private final Date birthday;
         public final String name;
+        private final Date birthday;
+        public final String address;
         public Contact(String name, Date birthday, String address) {
             this.name = name;
             this.birthday = birthday;
@@ -49,12 +64,18 @@ public class CellTableSortExample implements EntryPoint {
     }
 
   /**
-   * The list of data to display.
+   * Two lists of data to display. Uses 'click' to swap lists into the table.
    */
   private static final List<Contact> CONTACTS = Arrays.asList(
-      new Contact("John", new Date(80, 4, 12), "123 Fourth Avenue"),
-      new Contact("Joe", new Date(85, 2, 22), "22 Lance Ln"),
-      new Contact("George", new Date(46, 6, 6), "1600 Pennsylvania Avenue")
+      new Contact("John", new Date(80, 4, 12), "Fourth Avenue"),
+      new Contact("Joe", new Date(85, 2, 22), "Lance Ln"),
+      new Contact("George", new Date(46, 6, 6), "Pennsylvania Avenue")
+    );
+
+  private static final List<Contact> CONTACTS2 = Arrays.asList(
+      new Contact("Peter", new Date(80, 4, 12), "Fourth Avenue"),
+      new Contact("Paul", new Date(85, 2, 22), "Lance Ln"),
+      new Contact("Mary", new Date(46, 6, 6), "Pennsylvania Avenue")
     );
   
 
@@ -66,34 +87,29 @@ public class CellTableSortExample implements EntryPoint {
     table = new CellTable<Contact>();
     table.setKeyboardSelectionPolicy(KeyboardSelectionPolicy.ENABLED);
 
+    // Define the columns with value renderers and labels
     createColumns();
 
-    // Create a list data provider.
+    // Create the data provider
     dataProvider = new ListDataProvider<Contact>();
+   
+    // Create the sort handler and connecting it to the data provider
+    table.addColumnSortHandler(createColumnSortHandler(dataProvider));
 
-    // Add the CellTable to the dataProvider.
+    // Connect the CellTable to the data provider
     dataProvider.addDataDisplay(table);
 
+    // Add the first list
+    dataProvider.getList().addAll(CONTACTS);
 
-    // Add the value to the list. The dataProvider will update the cellList.
-    List<Contact> list = dataProvider.getList();
-    for(Contact contact: CONTACTS)
-        list.add(contact);
+    // Programatically sort by name, ascending
+    sortByName(true);
 
-    createSortHandler();
+    // Add the widgets to the root panel; User will click on the 'Load a new list' button
+    content.add(table);
+    content.add(createListToggleButton(table, dataProvider));
 
-    //
-    ColumnSortList columnSortList = table.getColumnSortList();
-    columnSortList.clear();
-    columnSortList.push(nameColumn);
-
-    dataProvider.refresh();
-
-    // Add the widgets to the root panel.
-    VerticalPanel vPanel = new VerticalPanel();
-    // vPanel.add(addButton);
-    vPanel.add(table);
-    RootPanel.get().add(vPanel);
+    RootPanel.get().add(content);
   }
 
 
@@ -124,27 +140,69 @@ public class CellTableSortExample implements EntryPoint {
             }
         };
 
+        // Column widths in font width
+        table.setColumnWidth(nameColumn, 15.0, Unit.EX);
+        table.setColumnWidth(dateColumn, 35.0, Unit.EX);
+        table.setColumnWidth(addressColumn, 35.0, Unit.EX);
+
         // Assemble the table
         table.addColumn(nameColumn, "Name");
         table.addColumn(dateColumn, "Birthday");
         table.addColumn(addressColumn, "Address");
     }
 
-    private void createSortHandler() {
+    private ListHandler<Contact> createColumnSortHandler(ListDataProvider<Contact> dataProvider) {
 
         // Create a sort handler
         ListHandler<Contact> columnSortHandler = new ListHandler<>(dataProvider.getList());
 
+        // Create a sorter for the name
+        nameColumn.setSortable(true);
         columnSortHandler.setComparator(nameColumn,
             new Comparator<Contact>() {
                 public int compare(Contact o1, Contact o2) {
-                    return o1.name.compareTo(o2.name);    // Ascending
-                    // return o2.name.compareTo(o1.name); // Descending
+                    return o1.name.compareTo(o2.name);
                 }
             }
         );
 
-        table.addColumnSortHandler(columnSortHandler);
+        // Create a sorter for the address
+        addressColumn.setSortable(true);
+        columnSortHandler.setComparator(addressColumn,
+            new Comparator<Contact>() {
+                public int compare(Contact o1, Contact o2) {
+                    return o1.address.compareTo(o2.address);
+                }
+            }
+        );
+
+        return columnSortHandler;
+    }
+
+
+    private void sortByName(boolean ascending) {
+
+        ColumnSortInfo columnSortInfo = new ColumnSortInfo(nameColumn, ascending);
+        table.getColumnSortList().push( columnSortInfo );
+        ColumnSortEvent.fire(table, table.getColumnSortList());
 
     }
+
+
+    private Button createListToggleButton(final CellTable table, final ListDataProvider dataProvider) {
+        // New list should sort the same
+        Button newListButton = new Button("Load a new List", new ClickHandler() {
+        
+            public void onClick(ClickEvent event) {
+                clicks++;
+                dataProvider.getList().clear();
+                dataProvider.getList().addAll((clicks % 2 == 0) ? CONTACTS: CONTACTS2);
+                ColumnSortEvent.fire(table, table.getColumnSortList());
+            }
+
+        });
+
+        return newListButton;        
+    }
+
 }
