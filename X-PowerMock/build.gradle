@@ -1,0 +1,88 @@
+task usage << { print """
+==================================================================================
+${applicationName}, v${project.version}
+
+gradle compileJava
+  Compile Java source code displaying warnings and error to the terminal console. Does not
+  cross compile Java to JavaScript
+
+
+
+gradle clean
+  Delete working files in 'project.buildDir'; invokes 'cleanGWT' to remove the directory
+  used by the GWT DevMode environment
+
+
+==================================================================================
+
+"""}
+
+import static java.awt.Desktop.desktop
+
+
+apply plugin: 'java'
+
+
+//============================================================================================
+// C O N F I G U R A T I O N =================================================================
+//============================================================================================
+
+// Project Configuration --------------------------------------------------------
+
+ext.applicationName = "TestPowerMock"
+group = 'demo'
+version = 'demo'
+
+// Java Compiler Configuration -------------------------------------------------
+
+sourceCompatibility = 1.8
+targetCompatibility = sourceCompatibility
+compileJava.options.compilerArgs = [
+//    '-Xlint:unchecked', 
+//    '-Xlint:deprecation',
+] 
+
+
+//============================================================================================
+// R e p o s i t o r i e s   &   D e p e n d e n c i e s =====================================
+//============================================================================================
+
+
+repositories {
+        mavenLocal()    // User's local
+        mavenCentral()  // Maven Central repository; GWT
+}
+
+
+// Create a GWT Compiler configuration
+configurations { [gwtCompile] }
+
+dependencies {
+
+    // Dependency Versions 
+    def junit      = '4.12'
+    def powerMock  = '1.6.4'
+
+    
+    testCompile([ 
+        "org.powermock:powermock-api-mockito:$powerMock",   // PowerMock using Mockito
+        "org.powermock:powermock-module-junit4:$powerMock", // PowerMock using JUnit
+        "junit:junit:$junit"
+    ]) 
+
+
+}
+
+
+//============================================================================================
+// U N I T   T E S T I N G =====================================================================
+//============================================================================================
+
+// Launch the browser if any test fails and display the report
+
+gradle.taskGraph.afterTask { task, taskState ->
+    if (task.name == 'test' && taskState.failure)
+        desktop.browse(new File(testReportDir, 'index.html').toURI())
+}
+
+
