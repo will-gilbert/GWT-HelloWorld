@@ -9,15 +9,17 @@ public class Testable {
 
     public void a() {
         a++;
-        b();
-        c();
+        b(a);
+        c(new Integer(a), "Hello");
     }
 
-    public void b() {
+    // Method parameter added to show how to use in tests
+    public void b(int n) {
         b++; 
     }
 
-    private void c() {
+    // Method parameters added to show how to use in tests
+    private void c(Integer n, String string) {
         c++;  
     }
 

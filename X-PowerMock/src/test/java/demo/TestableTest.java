@@ -24,6 +24,9 @@ import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Testable.class)
 public class TestableTest {
@@ -56,7 +59,7 @@ public class TestableTest {
         //   methods
 
         verify(testable, times(1)).a();
-        verify(testable, times(0)).b();
+        verify(testable, times(0)).b(anyInt());
         // Can't verity private method 'c'
 
         // These were not incremented because Mocks do have implementations
@@ -77,14 +80,14 @@ public class TestableTest {
         // Then we can verify that the public methods were involked and use a PowerMockito
         //  method to verify that the private method 'c' was involked.
         verify(testable, times(1)).a();
-        verify(testable, times(1)).b();
-        verifyPrivate(testable, times(1)).invoke("c");
+        verify(testable, times(1)).b(anyInt());
+        verifyPrivate(testable, times(1)).invoke("c", anyInt(), anyString());
 
         // AND Mockito can verity order of invocation, except for private methods; PowerMock
         //  has not yet implemented 'InOrder' for private methods.
         InOrder inOrder = inOrder(testable);
         inOrder.verify(testable).a();
-        inOrder.verify(testable).b();
+        inOrder.verify(testable).b(anyInt());
     }
 
 
