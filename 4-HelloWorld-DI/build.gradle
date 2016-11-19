@@ -1,4 +1,4 @@
-task usage << { print """
+task usage doLast { print """
 ==================================================================================
 ${applicationName}, v${project.version}
 
@@ -63,7 +63,7 @@ ext.localityProperties = [
 
 // Java Compiler Configuration -------------------------------------------------
 
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 targetCompatibility = sourceCompatibility
 compileJava.options.compilerArgs = [
 //    '-Xlint:unchecked', 
@@ -94,7 +94,7 @@ repositories {
 
 // Dependency Versions 
 
-ext.gwtSDK    = '2.7.0'
+ext.gwtSDK    = '2.8.0'
 ext.gin       = '1.5.0'
 ext.guice     = '4.0'
 ext.junit     = '4.1'

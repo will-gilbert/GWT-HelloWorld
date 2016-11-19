@@ -101,7 +101,7 @@ configurations { [gwtCompile] }
 dependencies {
 
     // Dependency Versions 
-    def gwtSDK     = '2.7.0'
+    def gwtSDK     = '2.8.0'
     def junit      = '4.12'
     def gwtMockito = '1.1.6'
     def powerMock  = '1.6.4'
