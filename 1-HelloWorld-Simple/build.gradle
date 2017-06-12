@@ -1,4 +1,4 @@
-task usage << { print """
+task usage doLast { print """
 ==================================================================================
 ${applicationName}, v${project.version}
 
@@ -11,6 +11,8 @@ gradle devMode
   Start DevMode (formerly SuperDevMode); Use the DevMode window to start a browser session;
   Edit and save GWT source code, refresh the browser to recompile.
 
+gradle test
+  Runs some simple PowerMock tests to work around GWT.
 
 gradle clean jettyRun
   Cross compiles the client side Java into JavaScript; launches Jetty.  Use any browser to
@@ -101,10 +103,10 @@ configurations { [gwtCompile] }
 dependencies {
 
     // Dependency Versions 
-    def gwtSDK     = '2.8.0'
+    def gwtSDK     = '2.8.1'
     def junit      = '4.12'
     def gwtMockito = '1.1.6'
-    def powerMock  = '1.6.4'
+    def powerMock  = '1.6.6'
 
     compile ([
 
