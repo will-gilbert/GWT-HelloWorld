@@ -203,7 +203,6 @@ task devMode(dependsOn: ['compileJava', 'copyWebAppResources', 'copyLibraries'],
     main ='com.google.gwt.dev.DevMode'
     
     maxHeapSize = '2000M' 
-    jvmArgs += '-XX:MaxPermSize=2048m'          // PermGen space
     jvmArgs += '-Dgwt.nowarn.webapp.classpath'  // Supress DevMode classpath warnings
 
     classpath = files([
