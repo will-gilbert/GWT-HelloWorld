@@ -25,7 +25,6 @@ import static java.awt.Desktop.desktop
 
 apply plugin: 'java'
 apply plugin: 'org.akhikhl.gretty'
-//apply plugin: 'jetty'
 apply plugin: 'war'
 
 buildscript {
@@ -67,7 +66,7 @@ ext.localityProperties = [
         'application.name'    : applicationName,
         'welcome-file'        : gwtStartPage,
         'gwtModule'           : gwtModule,
-        'user.agent'          : findProperty('user.agent', 'safari'),
+        'user.agent'          : findProperty('user.agent') ?: 'safari'
     ]
 
 
@@ -139,17 +138,6 @@ clean { dependsOn 'cleanGWT' }
 
 processResources {
     filter(ReplaceTokens, tokens: localityProperties)
-}
-
-
-
-//============================================================================================
-// U T I L I T Y   M E T H O D S ============================================================= 
-//============================================================================================
-
-def String findProperty(String propertyName, defaultValue='') {
-    def property = rootProject.hasProperty(propertyName) ? rootProject.getProperty(propertyName) : defaultValue
-    return property?.trim()
 }
 
 
@@ -296,19 +284,4 @@ gretty {
 
 }
 
-
-// jettyRun {
-//     dependsOn = [war]
-// }
-
-// jettyRun.doFirst {
-//     println '=================================================================================='
-//     println '|'
-//     print   '| Open a browser and enter the URL-> '
-//     println "  http://localhost:${jettyRun.httpPort}/${project.name}/${gwtStartPage}"
-//     println '|'
-//     println '| Mac OSX: Command-"Double Click" on the url'
-//     println '| Ctrl-C or Command-Period to quit'
-//     println '|'
-// }
 
