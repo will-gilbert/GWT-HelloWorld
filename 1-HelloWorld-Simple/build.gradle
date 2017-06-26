@@ -63,7 +63,7 @@ ext.localityProperties = [
         'application.name'    : applicationName,
         'welcome-file'        : gwtStartPage,
         'gwtModule'           : gwtModule,
-        'user.agent'          : findProperty('user.agent', 'safari'),
+        'user.agent'          : findProperty('user.agent') ?: 'safari'
     ]
 
 
@@ -112,7 +112,6 @@ dependencies {
 
         // GWT --------------------------------------------------------
         "com.google.gwt:gwt-user:$gwtSDK",
-
     ])
     
     runtime ([ ])        // TDB
@@ -129,8 +128,7 @@ dependencies {
     gwtCompile([
         "com.google.gwt:gwt-dev:$gwtSDK",
         "com.google.gwt:gwt-servlet:$gwtSDK",
-        "com.google.gwt:gwt-codeserver:$gwtSDK",
-        'javax.validation:validation-api:1.1.0.Final'
+        "com.google.gwt:gwt-codeserver:$gwtSDK"
     ])
 
 }
@@ -152,19 +150,6 @@ clean { dependsOn 'cleanGWT' }
 processResources {
     filter(ReplaceTokens, tokens: localityProperties)
 }
-
-
-
-//============================================================================================
-// U T I L I T Y   M E T H O D S ============================================================= 
-//============================================================================================
-
-def String findProperty(String propertyName, defaultValue='') {
-    def property = rootProject.hasProperty(propertyName) ? rootProject.getProperty(propertyName) : defaultValue
-    return property?.trim()
-}
-
-
 
 //============================================================================================
 // G W T   C O M P I L E   A N D   B U I L D    T A S K S ====================================
@@ -203,7 +188,6 @@ task devMode(dependsOn: ['compileJava', 'copyWebAppResources', 'copyLibraries'],
     main ='com.google.gwt.dev.DevMode'
     
     maxHeapSize = '2000M' 
-    jvmArgs += '-XX:MaxPermSize=2048m'          // PermGen space
     jvmArgs += '-Dgwt.nowarn.webapp.classpath'  // Supress DevMode classpath warnings
 
     classpath = files([
@@ -307,7 +291,7 @@ jettyRun.doFirst {
     print   '| Open a browser and enter the URL-> '
     println "  http://localhost:${jettyRun.httpPort}/${project.name}/${gwtStartPage}"
     println '|'
-    println '| Mac OSX: Command-"Double Click" on the url'
+    println '| macOS: Command-"Double Click" on the url'
     println '| Ctrl-C or Command-Period to quit'
     println '|'
 }
