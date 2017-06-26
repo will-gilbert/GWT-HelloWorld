@@ -2,21 +2,17 @@ task usage doLast { print """
 ==================================================================================
 ${applicationName}, v${project.version}
 
-
 gradle compileJava
   Compile Java source code displaying warnings and error to the terminal console. Does not
   cross compile Java to JavaScript
-
 
 gradle clean jettyRun
   Cross compiles the client side Java into JavaScript; launches Jetty.  Use any browser to
   connect to the localhost on the port defined by 'jettyRun.httpPort'
 
-
 gradle clean
   Delete working files in 'project.buildDir'; invokes 'cleanGWT' to remove the directory
   used by the GWT DevMode environment
-
 
 ==================================================================================
 
@@ -44,10 +40,10 @@ version = '1.0'
 
 // GWT Compiler Configuration ---------------------------------------------------
 
-ext.gwtModule = 'demo.HelloWorld'   // Path to module descriptor
-ext.gwtModuleRenamedTo = 'helloworld'        // 'rename-to' within module descriptor
-ext.gwtStartPage = 'HelloWorld.html'         // HTML startup page
-ext.gwtBuildDir = 'build-gwt'                // GWT build directory
+ext.gwtModule = 'demo.HelloWorld'          // Path to module descriptor
+ext.gwtModuleRenamedTo = 'helloworld'      // 'rename-to' within module descriptor
+ext.gwtStartPage = 'HelloWorld.html'       // HTML startup page
+ext.gwtBuildDir = 'build-gwt'              // GWT build directory
 
 
 // Properties -------------------------------------------------------------------
@@ -57,7 +53,7 @@ ext.localityProperties = [
         'application.name'    : applicationName,
         'welcome-file'        : gwtStartPage,
         'gwtModuleRenamedTo'  : gwtModuleRenamedTo,
-        'user.agent'          : findProperty('user.agent', 'safari'),
+        'user.agent'          : findProperty('user.agent') ?: 'safari'
     ]
 
 
@@ -94,7 +90,7 @@ repositories {
 
 // Dependency Versions 
 
-ext.gwtSDK    = '2.8.0'
+ext.gwtSDK    = '2.8.0' // 2.8.1: NoSuchMethodError: com.google.gwt.util.regexfilter.RegexFilter
 ext.gin       = '1.5.0'
 ext.guice     = '4.0'
 ext.junit     = '4.1'
@@ -111,9 +107,7 @@ dependencies {
 
         // Google Dependency Injection
         "com.google.gwt.inject:gin:$gin",
-        "com.google.inject:guice:$guice",
-
-
+        "com.google.inject:guice:$guice"
     ])
     
     runtime ([ ])        // TDB
@@ -127,8 +121,7 @@ dependencies {
 
     gwtCompile([
         "com.google.gwt:gwt-dev:$gwtSDK",
-        "com.google.gwt:gwt-servlet:$gwtSDK",
-        'javax.validation:validation-api:1.1.0.Final'
+        "com.google.gwt:gwt-servlet:$gwtSDK"
     ])
 
 }
@@ -151,19 +144,6 @@ processResources {
     filter(ReplaceTokens, tokens: localityProperties)
 }
 
-
-
-//============================================================================================
-// U T I L I T Y   M E T H O D S ============================================================= 
-//============================================================================================
-
-def String findProperty(String propertyName, defaultValue='') {
-    def property = rootProject.hasProperty(propertyName) ? rootProject.getProperty(propertyName) : defaultValue
-    return property?.trim()
-}
-
-
-
 //============================================================================================
 // G W T   C O M P I L E   A N D   B U I L D    T A S K S ====================================
 //============================================================================================
@@ -181,7 +161,6 @@ task compileGWT(dependsOn: ['compileJava', 'copyWebAppResources'], type:JavaExec
 
     // Define the properties for the 'JavaExec' task
     main ='com.google.gwt.dev.Compiler'
-    
     jvmArgs = ['-Xmx512M']                 // 512M Memory, increase for larger Apps
 
     classpath = files ([
@@ -296,7 +275,7 @@ jettyRun.doFirst {
     print   '| Open a browser and enter the URL-> '
     println "  http://localhost:${jettyRun.httpPort}/${project.name}/${gwtStartPage}"
     println '|'
-    println '| Mac OSX: Command-"Double Click" on the url'
+    println '| macOS: Command-"Double Click" on the url'
     println '| Ctrl-C or Command-Period to quit'
     println '|'
 }

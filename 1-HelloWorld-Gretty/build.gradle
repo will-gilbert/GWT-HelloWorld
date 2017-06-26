@@ -6,18 +6,9 @@ gradle compileJava
   Compile Java source code displaying warnings and error to the terminal console. Does not
   cross compile Java to JavaScript
 
-
-gradle devMode
-  Start DevMode (formerly SuperDevMode); Use the DevMode window to start a browser session;
-  Edit and save GWT source code, refresh the browser to recompile.
-
-gradle test
-  Runs some simple PowerMock tests to work around GWT.
-
-gradle clean jettyRun
+gradle clean war jettyRun
   Cross compiles the client side Java into JavaScript; launches Jetty.  Use any browser to
   connect to the localhost on the port defined by 'jettyRun.httpPort'
-
 
 gradle clean
   Delete working files in 'project.buildDir'; invokes 'cleanGWT' to remove the directory
@@ -34,7 +25,6 @@ import static java.awt.Desktop.desktop
 
 apply plugin: 'java'
 apply plugin: 'org.akhikhl.gretty'
-//apply plugin: 'jetty'
 apply plugin: 'war'
 
 buildscript {
@@ -76,7 +66,7 @@ ext.localityProperties = [
         'application.name'    : applicationName,
         'welcome-file'        : gwtStartPage,
         'gwtModule'           : gwtModule,
-        'user.agent'          : findProperty('user.agent', 'safari'),
+        'user.agent'          : findProperty('user.agent') ?: 'safari'
     ]
 
 
@@ -110,9 +100,6 @@ repositories {
 }
 
 
-// Create a GWT Compiler configuration
-configurations { [gwtCompile] }
-
 dependencies {
 
     // Dependency Versions 
@@ -122,6 +109,8 @@ dependencies {
 
         // GWT --------------------------------------------------------
         "com.google.gwt:gwt-user:$gwtSDK",
+        "com.google.gwt:gwt-dev:$gwtSDK",
+        "com.google.gwt:gwt-servlet:$gwtSDK",
 
     ])
     
@@ -130,13 +119,6 @@ dependencies {
     testCompile([ ])     // TBD
 
     testRuntime([ ])     // TDB
-
-    gwtCompile([
-        "com.google.gwt:gwt-dev:$gwtSDK",
-        "com.google.gwt:gwt-servlet:$gwtSDK",
-        "com.google.gwt:gwt-codeserver:$gwtSDK",
-        'javax.validation:validation-api:1.1.0.Final'
-    ])
 
 }
 
@@ -156,17 +138,6 @@ clean { dependsOn 'cleanGWT' }
 
 processResources {
     filter(ReplaceTokens, tokens: localityProperties)
-}
-
-
-
-//============================================================================================
-// U T I L I T Y   M E T H O D S ============================================================= 
-//============================================================================================
-
-def String findProperty(String propertyName, defaultValue='') {
-    def property = rootProject.hasProperty(propertyName) ? rootProject.getProperty(propertyName) : defaultValue
-    return property?.trim()
 }
 
 
@@ -193,8 +164,7 @@ task compileGWT(dependsOn: ['compileJava', 'copyWebAppResources'], type:JavaExec
 
     classpath = files ([
         sourceSets.main.java.srcDirs,      // Contains Java sources to be compiled into JavaScript
-        sourceSets.main.runtimeClasspath,  // Contains .gwt.xml file
-        configurations.gwtCompile.files    // Contains the GWT compiler
+        sourceSets.main.runtimeClasspath   // Contains .gwt.xml file
     ])
 
     args = ["-war", gwtBuildDir,  gwtModuleXML]
@@ -213,8 +183,7 @@ task devMode(dependsOn: ['compileJava', 'copyWebAppResources', 'copyLibraries'],
 
     classpath = files([
         sourceSets.main.java.srcDirs,      // Contains Java sources to be compiled into JavaScript
-        sourceSets.main.runtimeClasspath,  // Contains .gwt.xml file
-        configurations.gwtCompile.files    // Contains the GWT compiler JAR
+        sourceSets.main.runtimeClasspath   // Contains .gwt.xml file
     ])
 
     args = [ "-startupUrl", gwtStartPage,  "-war", gwtBuildDir,  gwtModuleXML]
@@ -297,38 +266,22 @@ war {
 
 
 //============================================================================================
-// J E T T Y   C O N F I G U R A T I O N  ==================================================== 
+// G R E T T Y   C O N F I G U R A T I O N  ==================================================
 //============================================================================================
 
-// jettyRun {
-//     dependsOn = [compileGWT]
-//     httpPort = 9090              // Avoid potential conflicts with existing 8080
-//  }
+gretty {
 
+    // dependsOn = [war]
 
-// jettyRun.doFirst {
-//     println '=================================================================================='
-//     println '|'
-//     print   '| Open a browser and enter the URL-> '
-//     println "  http://localhost:${jettyRun.httpPort}/${project.name}/${gwtStartPage}"
-//     println '|'
-//     println '| Mac OSX: Command-"Double Click" on the url'
-//     println '| Ctrl-C or Command-Period to quit'
-//     println '|'
-// }
+    servletContainer = 'jetty9'
 
+    httpEnabled = true
+    httpPort = 9090
+    contextPath = '/1-HelloWorld-Gretty'
+    jvmArgs { '-ea' }
 
+    loggingLevel = 'INFO' // options:   'ALL', 'DEBUG', 'ERROR', 'INFO', 'OFF', 'TRACE', 'WARN'
 
-//============================================================================================
-// U N I T   T E S T I N G =====================================================================
-//============================================================================================
-
-// Launch the browser if any test fails and display the report
-
-gradle.taskGraph.afterTask { task, taskState ->
-    if (task.name == 'test' && taskState.failure)
-        desktop.browse(new File(testReportDir, 'index.html').toURI())
 }
-
 
 

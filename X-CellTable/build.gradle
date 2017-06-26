@@ -62,7 +62,7 @@ version = '1.0'
 
 // GWT Compiler Configuration ---------------------------------------------------
 
-ext.gwtModule = findProperty('entryPoint', 'CellTableExample')  // Module EntryPoint
+ext.gwtModule = findProperty('entryPoint') ?: 'CellTableExample'  // Module EntryPoint
 ext.gwtModuleXML = 'demo.CellTableExamples'      // Path to module descriptor
 ext.gwtStartPage = 'index.html'                  // HTML startup page
 ext.gwtBuildDir = 'build-gwt'                    // GWT build directory
@@ -75,7 +75,7 @@ ext.localityProperties = [
         'application.name'    : applicationName,
         'welcome-file'        : gwtStartPage,
         'gwtModule'           : gwtModule,
-        'user.agent'          : findProperty('user.agent', 'safari'),
+        'user.agent'          : findProperty('user.agent') ?: 'safari'
     ]
 
 
@@ -84,8 +84,8 @@ ext.localityProperties = [
 sourceCompatibility = 1.8
 targetCompatibility = sourceCompatibility
 compileJava.options.compilerArgs = [
-//    '-Xlint:unchecked', 
-//    '-Xlint:deprecation',
+   //'-Xlint:deprecation',
+    '-Xlint:unchecked'
 ] 
 
 
@@ -165,19 +165,6 @@ processResources {
     filter(ReplaceTokens, tokens: localityProperties)
 }
 
-
-
-//============================================================================================
-// U T I L I T Y   M E T H O D S ============================================================= 
-//============================================================================================
-
-def String findProperty(String propertyName, defaultValue='') {
-    def property = rootProject.hasProperty(propertyName) ? rootProject.getProperty(propertyName) : defaultValue
-    return property?.trim()
-}
-
-
-
 //============================================================================================
 // G W T   C O M P I L E   A N D   B U I L D    T A S K S ====================================
 //============================================================================================
@@ -195,7 +182,6 @@ task compileGWT(dependsOn: ['compileJava', 'copyWebAppResources'], type:JavaExec
 
     // Define the properties for the 'JavaExec' task
     main ='com.google.gwt.dev.Compiler'
-    
     jvmArgs = ['-Xmx512M']                 // 512M Memory, increase for larger Apps
 
     classpath = files ([
@@ -215,7 +201,6 @@ task devMode(dependsOn: ['compileJava', 'copyWebAppResources', 'copyLibraries'],
     main ='com.google.gwt.dev.DevMode'
     
     maxHeapSize = '2000M' 
-    jvmArgs += '-XX:MaxPermSize=2048m'          // PermGen space
     jvmArgs += '-Dgwt.nowarn.webapp.classpath'  // Supress DevMode classpath warnings
 
     classpath = files([
