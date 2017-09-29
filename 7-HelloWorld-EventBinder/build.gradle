@@ -1,5 +1,5 @@
-task usage doLast { print """
-==================================================================================
+task usage doLast { 
+    print """${'='*80}
 ${applicationName}, v${project.version}
 
 gradle compileJava
@@ -17,7 +17,7 @@ gradle clean
   Delete working files in 'project.buildDir'; invokes 'cleanGWT' to remove the directory
   used by the GWT DevMode environment
 
-==================================================================================
+${'='*80}
 """}
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -25,9 +25,20 @@ import static java.awt.Desktop.desktop
 
 
 apply plugin: 'java'
-apply plugin: 'jetty'
+apply plugin: 'org.akhikhl.gretty'
 apply plugin: 'war'
 
+buildscript {
+  repositories {
+    mavenLocal()
+    jcenter()
+    maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local' }
+  }
+
+  dependencies {
+    classpath "org.akhikhl.gretty:gretty:2.0.0"
+  }
+}
 
 //============================================================================================
 // C O N F I G U R A T I O N =================================================================
@@ -35,17 +46,16 @@ apply plugin: 'war'
 
 // Project Configuration --------------------------------------------------------
 
-ext.applicationName = "HelloWorld"
+ext.applicationName = "6-HelloWorld-EventBinder"
 group = 'com.smartgwt'
 version = '1.0'
-
 
 // GWT Compiler Configuration ---------------------------------------------------
 
 ext.gwtModule = 'demo.HelloWorld'            // Path to module descriptor
 ext.gwtModuleRenamedTo = 'helloworld'        // 'rename-to' within module descriptor
 ext.gwtStartPage = 'HelloWorld.html'         // HTML startup page
-ext.gwtBuildDir = 'build-gwt'                // GWT build directory
+ext.gwtBuildDir = "${buildDir}-gwt"          // GWT build directory
 
 
 // Properties -------------------------------------------------------------------
@@ -90,22 +100,20 @@ repositories {
     jcenter()
 }
 
-// Dependency Versions 
-
-ext.gwtSDK    = '2.8.0'
-ext.gin       = '1.5.0'
-ext.guice     = '4.0'
-ext.junit     = '4.1'
-ext.mockito   = '1.10.19'
-
-// Create a GWT Compiler configuration
-configurations { [gwtCompile] }
-
 dependencies {
+
+    def gwtSDK    = '2.8.1'
+    def gin       = '1.5.0'
+    def guice     = '4.0'
+    def junit     = '4.1'
+    def mockito   = '1.10.19'
+
     compile ([
 
         // GWT SDK & EventBinder ------------------------
         "com.google.gwt:gwt-user:$gwtSDK",
+        "com.google.gwt:gwt-dev:$gwtSDK",
+        "com.google.gwt:gwt-servlet:$gwtSDK",
         'com.google.gwt.eventbinder:eventbinder:1.1.0',
 
         // Google Dependency Injection
@@ -121,11 +129,6 @@ dependencies {
     ])
 
     testRuntime([ ])     // TDB
-
-    gwtCompile([
-        "com.google.gwt:gwt-dev:$gwtSDK",
-        "com.google.gwt:gwt-servlet:$gwtSDK"
-    ])
 
 }
 
@@ -169,12 +172,11 @@ task compileGWT(dependsOn: ['compileJava', 'copyWebAppResources'], type:JavaExec
     // Define the properties for the 'JavaExec' task
     main ='com.google.gwt.dev.Compiler'
     
-    jvmArgs = ['-Xmx512M']                 // 512M Memory, increase for larger Apps
+    jvmArgs = ['-Xmx1024M']                 // 512M Memory, increase for larger Apps
 
     classpath = files ([
         sourceSets.main.java.srcDirs,      // Contains Java sources to be compiled into JavaScript
-        sourceSets.main.runtimeClasspath,  // Contains .gwt.xml file
-        configurations.gwtCompile.files    // Contains the GWT compiler
+        sourceSets.main.runtimeClasspath   // Contains .gwt.xml file
     ])
 
     args = ["-war", gwtBuildDir,  gwtModule]
@@ -187,14 +189,12 @@ task devMode(dependsOn: ['compileJava', 'copyWebAppResources'], type:JavaExec) {
 
     main ='com.google.gwt.dev.DevMode'
     
-    maxHeapSize = '2000M' 
-    jvmArgs += '-XX:MaxPermSize=2048m'          // PermGen space
+    jvmArgs = ['-Xmx1024M']                     // Memory, increase for larger Apps
     jvmArgs += '-Dgwt.nowarn.webapp.classpath'  // Supress DevMode classpath warnings
 
     classpath = files([
         sourceSets.main.java.srcDirs,      // Contains Java sources to be compiled into JavaScript
-        sourceSets.main.runtimeClasspath,  // Contains .gwt.xml file
-        configurations.gwtCompile.files       // Contains the GWT compiler JAR
+        sourceSets.main.runtimeClasspath   // Contains .gwt.xml file
     ])
 
     args = [ "-startupUrl", gwtStartPage,  "-war", gwtBuildDir,  gwtModule]
@@ -254,6 +254,7 @@ war {
         into 'WEB-INF/lib'
         include '*.jar'
         exclude  'gwt-servlet-*.jar'
+        exclude  'gwt-dev-*.jar'
         exclude  'gwt-user-*.jar'
     }
 
@@ -262,26 +263,20 @@ war {
 }
 
 
-
 //============================================================================================
-// J E T T Y   C O N F I G U R A T I O N  ==================================================== 
+// G R E T T Y   C O N F I G U R A T I O N  ==================================================
 //============================================================================================
 
-jettyRun {
-    dependsOn = [compileGWT]
-    httpPort = 9090              // Avoid potential conflicts with existing 8080
- }
+gretty {
 
+    servletContainer = 'jetty9'
 
-jettyRun.doFirst {
-    println '=================================================================================='
-    println '|'
-    print   '| Open a browser and enter the URL-> '
-    println "  http://localhost:${jettyRun.httpPort}/${project.name}/${gwtStartPage}"
-    println '|'
-    println '| macOS: Command-"Double Click" on the url'
-    println '| Ctrl-C or Command-Period to quit'
-    println '|'
+    httpEnabled = true
+    httpPort = 9090
+    jvmArgs { '-ea' }
+
+    loggingLevel = 'INFO' // options:   'ALL', 'DEBUG', 'ERROR', 'INFO', 'OFF', 'TRACE', 'WARN'
+
 }
 
 

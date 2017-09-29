@@ -1,5 +1,5 @@
-task usage doLast { print """
-==================================================================================
+task usage doLast { 
+    print """${'='*80}
 ${applicationName}, v${project.version}
 
 gradle compileJava
@@ -7,26 +7,26 @@ gradle compileJava
   cross compile Java to JavaScript
 
 
-gradle clean devMode -P entryPoint=AsyncDataProviderExample
-gradle clean devMode -P entryPoint=CellTableExample
-gradle clean devMode -P entryPoint=CellTableFieldUpdaterExample
-gradle clean devMode -P entryPoint=CellTableFieldUpdaterExampleComplex
-gradle clean devMode -P entryPoint=CellTableSortExample
-gradle clean devMode -P entryPoint=KeyProviderExample
-gradle clean devMode -P entryPoint=ListDataProviderExample
-gradle clean devMode -P entryPoint=RangeChangeHandlerExample
+gradle clean war devMode -P entryPoint=AsyncDataProviderExample
+gradle clean war devMode -P entryPoint=CellTableExample
+gradle clean war devMode -P entryPoint=CellTableFieldUpdaterExample
+gradle clean war devMode -P entryPoint=CellTableFieldUpdaterExampleComplex
+gradle clean war devMode -P entryPoint=CellTableSortExample
+gradle clean war devMode -P entryPoint=KeyProviderExample
+gradle clean war devMode -P entryPoint=ListDataProviderExample
+gradle clean war devMode -P entryPoint=RangeChangeHandlerExample
   Start DevMode (formerly SuperDevMode); Use the DevMode window to start a browser session;
   Edit and save GWT source code, refresh the browser to recompile.
 
 
-gradle clean jettyRun -P entryPoint=AsyncDataProviderExample
-gradle clean jettyRun -P entryPoint=CellTableExample
-gradle clean jettyRun -P entryPoint=CellTableFieldUpdaterExample
-gradle clean jettyRun -P entryPoint=CellTableFieldUpdaterExampleComplex
-gradle clean jettyRun -P entryPoint=CellTableSortExample
-gradle clean jettyRun -P entryPoint=KeyProviderExample
-gradle clean jettyRun -P entryPoint=ListDataProviderExample
-gradle clean jettyRun -P entryPoint=RangeChangeHandlerExample
+gradle clean war jettyRun -P entryPoint=AsyncDataProviderExample
+gradle clean war jettyRun -P entryPoint=CellTableExample
+gradle clean war jettyRun -P entryPoint=CellTableFieldUpdaterExample
+gradle clean war jettyRun -P entryPoint=CellTableFieldUpdaterExampleComplex
+gradle clean war jettyRun -P entryPoint=CellTableSortExample
+gradle clean war jettyRun -P entryPoint=KeyProviderExample
+gradle clean war jettyRun -P entryPoint=ListDataProviderExample
+gradle clean war jettyRun -P entryPoint=RangeChangeHandlerExample
   Cross compiles the client side Java into JavaScript; launches Jetty.  Use any browser to
   connect to the localhost on the port defined by 'jettyRun.httpPort'
 
@@ -35,9 +35,7 @@ gradle clean
   Delete working files in 'project.buildDir'; invokes 'cleanGWT' to remove the directory
   used by the GWT DevMode environment
 
-
-==================================================================================
-
+${'='*80}
 """}
 
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -45,9 +43,20 @@ import static java.awt.Desktop.desktop
 
 
 apply plugin: 'java'
-apply plugin: 'jetty'
+apply plugin: 'org.akhikhl.gretty'
 apply plugin: 'war'
 
+buildscript {
+  repositories {
+    mavenLocal()
+    jcenter()
+    maven { url 'http://oss.jfrog.org/artifactory/oss-snapshot-local' }
+  }
+
+  dependencies {
+    classpath "org.akhikhl.gretty:gretty:2.0.0"
+  }
+}
 
 //============================================================================================
 // C O N F I G U R A T I O N =================================================================
@@ -109,9 +118,6 @@ repositories {
 }
 
 
-// Create a GWT Compiler configuration
-configurations { [gwtCompile] }
-
 dependencies {
 
     // Dependency Versions 
@@ -124,6 +130,10 @@ dependencies {
 
         // GWT --------------------------------------------------------
         "com.google.gwt:gwt-user:$gwtSDK",
+        "com.google.gwt:gwt-dev:$gwtSDK",
+        "com.google.gwt:gwt-servlet:$gwtSDK",
+        "com.google.gwt:gwt-codeserver:$gwtSDK",
+        //'javax.validation:validation-api:1.1.0.Final'
 
     ])
     
@@ -137,13 +147,6 @@ dependencies {
     ]) 
 
     testRuntime([ ])     // TDB
-
-    gwtCompile([
-        "com.google.gwt:gwt-dev:$gwtSDK",
-        "com.google.gwt:gwt-servlet:$gwtSDK",
-        "com.google.gwt:gwt-codeserver:$gwtSDK",
-        'javax.validation:validation-api:1.1.0.Final'
-    ])
 
 }
 
@@ -182,12 +185,11 @@ task compileGWT(dependsOn: ['compileJava', 'copyWebAppResources'], type:JavaExec
 
     // Define the properties for the 'JavaExec' task
     main ='com.google.gwt.dev.Compiler'
-    jvmArgs = ['-Xmx512M']                 // 512M Memory, increase for larger Apps
+    jvmArgs = ['-Xmx1024M']                 // Memory, increase for larger Apps
 
     classpath = files ([
         sourceSets.main.java.srcDirs,      // Contains Java sources to be compiled into JavaScript
-        sourceSets.main.runtimeClasspath,  // Contains .gwt.xml file
-        configurations.gwtCompile.files    // Contains the GWT compiler
+        sourceSets.main.runtimeClasspath  // Contains .gwt.xml file
     ])
 
     args = ["-war", gwtBuildDir,  gwtModuleXML]
@@ -205,8 +207,7 @@ task devMode(dependsOn: ['compileJava', 'copyWebAppResources', 'copyLibraries'],
 
     classpath = files([
         sourceSets.main.java.srcDirs,      // Contains Java sources to be compiled into JavaScript
-        sourceSets.main.runtimeClasspath,  // Contains .gwt.xml file
-        configurations.gwtCompile.files    // Contains the GWT compiler JAR
+        sourceSets.main.runtimeClasspath   // Contains .gwt.xml file
     ])
 
     args = [ "-startupUrl", gwtStartPage,  "-war", gwtBuildDir,  gwtModuleXML]
@@ -288,26 +289,23 @@ war {
 
 
 
+
 //============================================================================================
-// J E T T Y   C O N F I G U R A T I O N  ==================================================== 
+// G R E T T Y   C O N F I G U R A T I O N  ==================================================
 //============================================================================================
 
-jettyRun {
-    dependsOn = [compileGWT]
-    httpPort = 9090              // Avoid potential conflicts with existing 8080
- }
+gretty {
 
+    servletContainer = 'jetty9'
 
-jettyRun.doFirst {
-    println '=================================================================================='
-    println '|'
-    print   '| Open a browser and enter the URL-> '
-    println "  http://localhost:${jettyRun.httpPort}/${project.name}/${gwtStartPage}"
-    println '|'
-    println '| MacOS: Command-"Double Click" on the url'
-    println '| Ctrl-C or Command-Period to quit'
-    println '|'
+    httpEnabled = true
+    httpPort = 9090
+    jvmArgs { '-ea' }
+
+    loggingLevel = 'INFO' // options:   'ALL', 'DEBUG', 'ERROR', 'INFO', 'OFF', 'TRACE', 'WARN'
+
 }
+
 
 
 

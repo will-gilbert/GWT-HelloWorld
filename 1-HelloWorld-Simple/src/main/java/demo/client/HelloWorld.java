@@ -4,14 +4,16 @@ package demo.client;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.Window;
 
+// GWT - Widgets
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.VerticalPanel;
 
+// GWT - Event
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Label;
+
 /**
  * Entry point classes define onModuleLoad()
  */
